@@ -1,0 +1,47 @@
+
+plugins {
+    id 'java'
+    id 'maven-publish'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url = uri('https://repo.maven.apache.org/maven2/')
+    }
+}
+
+dependencies {
+    testImplementation 'org.testng:testng:7.4.0'
+}
+
+group = 'usu.msa.pos'
+version = '1.0.0'
+description = 'NQueens no Colinear (Recursive)'
+java.sourceCompatibility = JavaVersion.VERSION_11
+
+jar {
+  archiveFileName = 'nqueens-nocollinear-rec.jar'
+  archiveVersion = null
+  manifest {
+    attributes(
+      'Main-Class': 'App'
+    )
+  }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test') {
+    useTestNG()
+}
