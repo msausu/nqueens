@@ -8,7 +8,7 @@
 
 Based on:
 
-- wikipedia's Heap's algorithm page
+- [wikipedia's Heap's algorithm page](https://en.wikipedia.org/wiki/Heap%27s_algorithm)
 - Robert Sedgewick [algs4](https://algs4.cs.princeton.edu/home/)
 
 Segewick hypothesis: NQueens(n) ~ n! / 2.5<sup>n</sup>
@@ -21,7 +21,7 @@ Solve NQueens, pruning Queens in same diagonal, for each solution filter colinea
 
 Based on:
 
-- wikipedia's Las Vegas algorithm page
+- [wikipedia's Las Vegas algorithm page](https://en.wikipedia.org/wiki/Las_Vegas_algorithm)
 - Robert Sedgewick [algs4](https://algs4.cs.princeton.edu/home/)
 
 Generate random boards and verify NQueens constraints + no collinear queens. 
