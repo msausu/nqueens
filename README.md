@@ -24,4 +24,4 @@ Based on:
 - [wikipedia's Las Vegas algorithm page](https://en.wikipedia.org/wiki/Las_Vegas_algorithm)
 - Robert Sedgewick [algs4](https://algs4.cs.princeton.edu/home/)
 
-Generate random boards and verify NQueens constraints + no collinear queens. 
+Generate random boards and verify NQueens constraints + no collinear Queens. 
