@@ -1,6 +1,7 @@
 package usu.msa.pos.nqueens.nocollinear.geo;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -45,21 +46,40 @@ public class Point implements Comparable<Point> {
     }
 
     // test for colinear points when there are 3 or more points with same slope
-    // worst case O(n^4) 
+    // worst case O((n^2) * log(n)) 
     public static boolean hasCollinear(List<Point> points) {
         if (points == null || points.size() < 3) {
             throw new IllegalArgumentException();
         }
-        List<Point> ordered = points.stream().sorted().collect(Collectors.toList());
-        for (Point p : points) {
-            int j = p.equals(ordered.get(0)) ? 1 : 0;
-            double last = p.slope(ordered.get(j++));
-            for (int i = j; i < ordered.size(); i++) {
+        for (Point p: points) {
+            Comparator<Point> cmp = (Point t, Point t1) -> {
+                double s1 = p.slope(t), s2 = p.slope(t1);
+                return s1 > s2 ? 1 : (s1 < s2 ? -1 : 0);
+            };
+            List<Point> ordered = points.stream().filter(x -> !p.equals(x)).sorted(cmp).collect(Collectors.toList());
+            double last = p.slope(ordered.get(0));
+            for (int i = 1; i < ordered.size(); i++) {
                 double slope = p.slope(ordered.get(i));
-                if (approx(slope, last)) {
+                if (last == slope) 
                     return true;
+                else 
+                    last = slope;
+            }
+        }
+        return false;
+    }
+    
+    public static boolean hasCollinearSlow(List<Point> points) {
+        if (points == null || points.size() < 3) {
+            throw new IllegalArgumentException();
+        }
+        for (int i = 0; i < points.size(); i++) {
+            for (int j = i + 1; j < points.size(); j++) {
+                if (i == j) continue;
+                for (int k = j + 1; k < points.size(); k++) {
+                    if (i == k || j == k) continue;
+                        if (ccw(points.get(i), points.get(j), points.get(k)) == 0) return true;
                 }
-                last = slope;
             }
         }
         return false;
