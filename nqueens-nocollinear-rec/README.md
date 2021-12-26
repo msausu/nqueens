@@ -22,7 +22,7 @@ P?: optional board output, if absent numeric otherwise graphic
 
 > Numeric size 4 (each line is a solution array encoded by position starting at 0):
 
-`2 0 3 1 &rarr; represents the solution tuple ((1, 3), (2, 1), (3, 4), (4, 2))`
+`2 0 3 1` &rarr; represents the solution tuple `((1, 3), (2, 1), (3, 4), (4, 2))`
 
 > Graphic size 12
 
