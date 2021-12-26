@@ -13,7 +13,7 @@ Based on:
 
 Segewick hypothesis: NQueens(n) ~ n! / 2.5<sup>n</sup>
 
-Solve NQueens, pruning Queens in same diagonal, for each solution filter colinear Queens. 
+Solve NQueens, pruning Queens in same diagonal, for each solution filter collinear Queens. 
 
 ## [nqueens-nocollinear-rnd](nqueens-nocollinear-rnd)
 

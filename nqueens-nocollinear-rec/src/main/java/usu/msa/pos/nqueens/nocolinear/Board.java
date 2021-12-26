@@ -16,8 +16,14 @@ public class Board {
     private final List<int[]> solutions = new ArrayList<>();
     private final int n;
     private final int[] array;
+    private final boolean justNQueens;
 
     public Board(int n) {
+        this(n, false);
+    }
+    
+    public Board(int n, boolean justNQueens) {
+        this.justNQueens = justNQueens;
         if (n < 1 || n > MAX_BOARD_SIZE) {
             throw new IllegalArgumentException();
         }
@@ -55,7 +61,7 @@ public class Board {
     // board permutations
     private void permutations(int i) {
         if (i == n) {
-            if (n > 2 && !Point.hasCollinear(Point.toPoints(array))) {
+            if (n > 2 && (justNQueens || !Point.hasCollinear(Point.toPoints(array)))) {
                 addSolution();
             }
         } else {

@@ -17,7 +17,7 @@ import usu.msa.pos.nqueens.nocollinear.geo.Point;
 public class NQueensNoCollinear {
 
     private final Board board;
-
+    
     public NQueensNoCollinear(int n) {
         board = new Board(n);
         board.solve();
