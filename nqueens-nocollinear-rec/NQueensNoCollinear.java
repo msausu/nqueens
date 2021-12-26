@@ -1,12 +1,14 @@
 package usu.msa.pos.nqueens.nocolinear;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.commons.math3.fraction.Fraction;
 
 /**
  * @author msa
@@ -22,32 +24,65 @@ import java.util.stream.IntStream;
  */
 public class NQueensNoCollinear {
 
-    public static class Point implements Comparable<Point> {
+    public static class Rational implements Comparable<Rational> {
 
-        public static final double DISTANCE_PRECISION = 1e-6;
-        public final long x, y;
-        public final double slope;
+        public static final Rational ZERO = new Rational(0, 0);
+        private final Fraction fraction;
 
-        public Point(long x, long y) {
-            this.x = x;
-            this.y = y;
-            slope = x == 0 ? Double.MAX_VALUE : y / x;
-        }
+        public Rational(int x, int y) {
 
-        public static boolean approx(double x, double y) {
-            return Math.abs(x - y) < DISTANCE_PRECISION;
-        }
-
-        public double slope(Point o) {
-            return slope(this, o);
-        }
-
-        public static double slope(Point p1, Point p2) {
-            if (p1.x == p2.x) {
-                return Double.POSITIVE_INFINITY;
+            if (x == 0 && y == 0) {
+                fraction = Fraction.ZERO;
+            } else if (x > 0 && y == 0) {
+                fraction = new Fraction(Integer.MAX_VALUE, 1);
+            } else if (x < 0 && y == 0) {
+                fraction = new Fraction(Integer.MIN_VALUE, 1);
+            } else {
+                fraction = new Fraction(x, y);
             }
-            double p1x = p1.x, p1y = p1.y, p2x = p2.x, p2y = p2.y;
-            return (p1y - p2y) / (p1x - p2x);
+        }
+
+        public Fraction get() {
+            return fraction;
+        }
+
+        public Rational(float f) {
+            this.fraction = new Fraction(f);
+        }
+
+        @Override
+        public int compareTo(Rational t) {
+            return equals(t) ? 0 : fraction.compareTo(t.fraction);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof Rational)) {
+                return false;
+            } else {
+                return ((Rational) o).fraction.equals(fraction);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%+.3f", fraction.doubleValue());
+        }
+
+    }
+
+    public static record Point(Number x, Number y) implements Comparable<Point> {
+
+        public static final Point ORIGIN = new Point(0, 0);
+
+        public Rational slopeOrigin() {
+            return slope(ORIGIN, this);
+        }
+
+        public static Rational slope(Point p1, Point p2) {
+            return isDecimal(p1.x, p1.y, p2.x, p2.y)
+                    ? new Rational((p1.y.floatValue() - p2.y.floatValue()) / (p1.x.floatValue() - p2.x.floatValue()))
+                    : new Rational(p1.y.intValue() - p2.y.intValue(), p1.x.intValue() - p2.x.intValue());
         }
 
         public static List<Point> toPoints(int[] a) {
@@ -57,21 +92,28 @@ public class NQueensNoCollinear {
         }
 
         // test for colinear points when there are 3 or more points with same slope
-        // worst case O((n^2) * log(n))
+        public static boolean hasCollinearVH(List<Point> points) {
+            Map<Integer, Long> vpoints = points.stream().map(p -> p.x.intValue()).collect(Collectors.groupingBy(v -> v, Collectors.counting()));
+            Map<Integer, Long> hpoints = points.stream().map(p -> p.y.intValue()).collect(Collectors.groupingBy(v -> v, Collectors.counting()));
+            return vpoints.values().stream().mapToLong(v -> v).anyMatch(v -> v > 2) || hpoints.values().stream().mapToLong(v -> v).anyMatch(v -> v > 2);
+        }
+
+        // test for colinear points when there are 3 or more points with same slope
         public static boolean hasCollinear(List<Point> points) {
             if (points == null || points.size() < 3) {
                 throw new IllegalArgumentException();
             }
-            for (Point p : points) {
-                Comparator<Point> cmp = (Point t, Point t1) -> {
-                    double s1 = p.slope(t), s2 = p.slope(t1);
-                    return s1 > s2 ? 1 : (s1 < s2 ? -1 : 0);
-                };
-                List<Point> ordered = points.stream().filter(x -> !p.equals(x)).sorted(cmp).collect(Collectors.toList());
-                double last = p.slope(ordered.get(0));
-                for (int i = 1; i < ordered.size(); i++) {
-                    double slope = p.slope(ordered.get(i));
-                    if (last == slope) {
+            if (hasCollinearVH(points)) {
+                return true;
+            }
+            for (int i = 0; i < points.size(); i++) {
+                Point p = points.get(i);
+                Comparator<Point> cmp = (Point a, Point b) -> slope(p, a).compareTo(slope(p, b));
+                List<Point> ordered = points.stream().filter(x -> !x.equals(p)).sorted(cmp).collect(Collectors.toList());
+                Rational last = slope(p, ordered.get(0));
+                for (int j = 1; j < ordered.size(); j++) {
+                    Rational slope = slope(p, ordered.get(j));
+                    if (last.equals(slope)) {
                         return true;
                     } else {
                         last = slope;
@@ -94,7 +136,7 @@ public class NQueensNoCollinear {
                         if (i == k || j == k) {
                             continue;
                         }
-                        if (ccw(points.get(i), points.get(j), points.get(k)) == 0) {
+                        if (area(points.get(i), points.get(j), points.get(k)) == 0) {
                             return true;
                         }
                     }
@@ -103,46 +145,48 @@ public class NQueensNoCollinear {
             return false;
         }
 
-        // collinear points have ccw == 0
-        public static int ccw(Point a, Point b, Point c) {
-            double area = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+        // collinear points have area == 0
+        public static int area(Point a, Point b, Point c) {
+            double area = (b.x.doubleValue() - a.x.doubleValue()) * (c.y.doubleValue() - a.y.doubleValue())
+                    - (b.y.doubleValue() - a.y.doubleValue()) * (c.x.doubleValue() - a.x.doubleValue());
             return area < 0 ? -1 : (area > 0 ? 1 : 0);
         }
 
         @Override
-        public String toString() {
-            return "(" + x + " " + y + ")";
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || !(o instanceof Point)) {
-                return false;
-            }
-            return (x == ((Point) o).x && y == ((Point) o).y) || (x == ((Point) o).x && y == ((Point) o).y);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-
-        @Override
         public int compareTo(Point p) {
-            if (y < p.y) {
+            if (y.doubleValue() < p.y.doubleValue()) {
                 return -1;
             }
-            if (y > p.y) {
+            if (y.doubleValue() > p.y.doubleValue()) {
                 return 1;
             }
-            if (x < p.x) {
+            if (x.doubleValue() < p.x.doubleValue()) {
                 return -1;
             }
-            if (x > p.x) {
+            if (x.doubleValue() > p.x.doubleValue()) {
                 return 1;
             }
             return 0;
         }
+
+        public static boolean isDecimal(Number x) {
+            return x.doubleValue() - x.intValue() > 0;
+        }
+
+        public static boolean isDecimal(Number... numbers) {
+            for (Number number : numbers) {
+                if (!isDecimal(number)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public String toString() {
+            return "(" + x + " " + y + " " + slopeOrigin() + ")";
+        }
+
     }
 
     private static final int MAX_BOARD_SIZE = 25;
@@ -155,10 +199,13 @@ public class NQueensNoCollinear {
         return IntStream.range(0, i).anyMatch(j -> Math.abs(q[i] - q[j]) == i - j);
     }
 
+    // Testing just NQUEENS == true ignoring collinear queens
+    private static final boolean JUST_NQUEENS = false;
+    
     // board permutations
     private void permutations(int i) {
         if (i == n) {
-            if (n < 3 || Point.hasCollinearSlow(Point.toPoints(q))) {
+            if (n < 3 || JUST_NQUEENS || Point.hasCollinearSlow(Point.toPoints(q))) {
                 return;
             }
             ret.accept(this);
@@ -211,9 +258,15 @@ public class NQueensNoCollinear {
         throw new IllegalStateException();
     }
 
+    static final PrintStream out = System.out;
+
     public static void help() {
-        System.err.println("java: version greater than 11\nuse: java NQueensNoCollinear.java boardSize\nboardSize: integer between 1 and " + MAX_BOARD_SIZE);
-        System.exit(1);
+        out.print("""
+                  java: version greater than 15
+                  use: java -cp commons-math3-3.6.1.jar NQueensNoCollinear.java boardSize
+                  boardSize: integer between 1 and \s """ + MAX_BOARD_SIZE + "\n"
+        );
+        System.exit(2);
     }
 
     public static void main(String[] args) {
@@ -223,6 +276,6 @@ public class NQueensNoCollinear {
         StringBuilder sb = new StringBuilder();
         Consumer<NQueensNoCollinear> use = solution -> sb.append(solution).append('\n');
         new NQueensNoCollinear(boardSize(args[0]), use);
-        System.out.print(sb.toString());
+        out.print(sb.toString());
     }
 }

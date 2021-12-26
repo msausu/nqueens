@@ -14,6 +14,6 @@ public class App {
             help();
         }
         NQueensNoCollinear nq = new NQueensNoCollinear(Board.boardSize(args[0]));
-        System.out.print(nq.toString());
+        System.out.print(args.length > 1 && args[1].matches("^[pP]") ? nq.print() : nq.toString());
     }
 }

@@ -1,5 +1,7 @@
 package usu.msa.pos.nqueens.nocolinear;
 
+import usu.msa.pos.nqueens.nocollinear.geo.Point;
+
 /**
  * @author msa
  *
@@ -15,28 +17,41 @@ package usu.msa.pos.nqueens.nocolinear;
 public class NQueensNoCollinear {
 
     private final Board board;
-    
+
     public NQueensNoCollinear(int n) {
         board = new Board(n);
         board.solve();
     }
 
     public static void help() {
-        help("java NQueensNoCollinear.java boardSize\nboardSize: integer between 1 and 25");
+        help("""
+             java -jar build/libs/nqueens-nocollinear-rec.jar boardSize P?
+             boardSize: integer between 1 and %d
+             P?: optional board output, if absent numeric otherwise graphic (unicode console)
+             """.formatted(Board.MAX_BOARD_SIZE)
+        );
     }
-    
+
     public static void help(String message) {
         System.err.println(message);
         System.exit(1);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         board.getSolutions().stream().forEach(b -> {
-            for (int x : b) sb.append(x).append(' ');
+            for (int x : b) {
+                sb.append(x).append(' ');
+            }
             sb.append('\n');
-            });
+        });
+        return sb.toString();
+    }
+
+    public String print() {
+        StringBuilder sb = new StringBuilder();
+        board.getSolutions().stream().forEach(solution -> sb.append(Board.print(Point.toPoints(solution))).append('\n'));
         return sb.toString();
     }
 }

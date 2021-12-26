@@ -12,7 +12,7 @@ import usu.msa.pos.nqueens.nocollinear.geo.Point;
  */
 public class Board {
 
-    public static final int MAX_SOLUTIONS = 100_000_000, MAX_BOARD_SIZE = 10_000; // testing
+    public static final int MAX_SOLUTIONS = 100_000_000, MAX_BOARD_SIZE = 25; // 25! 27 digits
     private final List<int[]> solutions = new ArrayList<>();
     private final int n;
     private final int[] array;
@@ -28,7 +28,7 @@ public class Board {
     public static int boardSize(String size) {
         try {
             int n = Integer.parseInt(size);
-            if (n < 1 || n > 25) { // 25! 27 digits
+            if (n < 1 || n > MAX_BOARD_SIZE) { 
                 throw new IllegalArgumentException();
             }
             return n;
@@ -55,15 +55,8 @@ public class Board {
     // board permutations
     private void permutations(int i) {
         if (i == n) {
-            if (n < 3 || Point.hasCollinear(Point.toPoints(array))) {
-                return;
-            }
-            int[] solution = new int[array.length];
-            System.arraycopy(array, 0, solution, 0, array.length);
-            if (solutions.size() < MAX_SOLUTIONS) {
-                solutions.add(solution);
-            } else {
-                help("Maximum number of solutions exceeded (needs reconfiguration)");
+            if (n > 2 && !Point.hasCollinear(Point.toPoints(array))) {
+                addSolution();
             }
         } else {
             IntStream.range(i, n).forEach(j -> {
@@ -86,10 +79,34 @@ public class Board {
         IntStream.range(0, n).forEach(i -> array[i] = i);
     }
 
+    private void addSolution() {
+        int[] solution = new int[array.length];
+        System.arraycopy(array, 0, solution, 0, array.length);
+        if (solutions.size() < MAX_SOLUTIONS) {
+            solutions.add(solution);
+        } else {
+            help("Maximum number of solutions exceeded (needs reconfiguration)");
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         IntStream.range(0, array.length).forEach(i -> sb.append(array[i]).append(" "));
+        return sb.toString().trim();
+    }
+    
+    public static String print(List<Point> points) {
+        int n = points.size();
+        StringBuilder sb = new StringBuilder();
+        IntStream.range(0, n).forEach(i -> {
+            IntStream.range(0, n).forEach(j -> {
+                sb.append(points.contains(new Point(i, j)) ? "\u2655" : ((i + j) % 2 != 0 ? ' ' : '_'));
+            });
+            sb.append('\n');
+        });
+        IntStream.range(0, n).forEach(i -> sb.append("\u005F"));
+        sb.append('\n');
         return sb.toString().trim();
     }
 }
