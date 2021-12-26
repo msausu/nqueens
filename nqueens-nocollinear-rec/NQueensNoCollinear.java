@@ -91,7 +91,7 @@ public class NQueensNoCollinear {
             return points;
         }
 
-        // test for colinear points when there are 3 or more points with same slope
+        // test for collinear vertical or horizontal points
         public static boolean hasCollinearVH(List<Point> points) {
             Map<Integer, Long> vpoints = points.stream().map(p -> p.x.intValue()).collect(Collectors.groupingBy(v -> v, Collectors.counting()));
             Map<Integer, Long> hpoints = points.stream().map(p -> p.y.intValue()).collect(Collectors.groupingBy(v -> v, Collectors.counting()));

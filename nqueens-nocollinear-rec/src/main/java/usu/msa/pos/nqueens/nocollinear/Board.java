@@ -1,9 +1,9 @@
-package usu.msa.pos.nqueens.nocolinear;
+package usu.msa.pos.nqueens.nocollinear;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
-import static usu.msa.pos.nqueens.nocolinear.NQueensNoCollinear.help;
+import static usu.msa.pos.nqueens.nocollinear.NQueensNoCollinear.help;
 import usu.msa.pos.nqueens.nocollinear.geo.Point;
 
 /**

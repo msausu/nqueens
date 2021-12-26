@@ -1,7 +1,7 @@
 
-import usu.msa.pos.nqueens.nocolinear.Board;
-import usu.msa.pos.nqueens.nocolinear.NQueensNoCollinear;
-import static usu.msa.pos.nqueens.nocolinear.NQueensNoCollinear.help;
+import usu.msa.pos.nqueens.nocollinear.Board;
+import usu.msa.pos.nqueens.nocollinear.NQueensNoCollinear;
+import static usu.msa.pos.nqueens.nocollinear.NQueensNoCollinear.help;
 
 /**
  *

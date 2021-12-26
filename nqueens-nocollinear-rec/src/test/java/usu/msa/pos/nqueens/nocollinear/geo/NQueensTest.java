@@ -1,7 +1,7 @@
 package usu.msa.pos.nqueens.nocollinear.geo;
 
 import org.testng.annotations.Test;
-import usu.msa.pos.nqueens.nocolinear.Board;
+import usu.msa.pos.nqueens.nocollinear.Board;
 
 /**
  *

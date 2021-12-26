@@ -1,4 +1,4 @@
-package usu.msa.pos.nqueens.nocolinear;
+package usu.msa.pos.nqueens.nocollinear;
 
 import usu.msa.pos.nqueens.nocollinear.geo.Point;
 
