@@ -1,9 +1,9 @@
 
 package usu.msa.pos.nqueens.nocollinear;
 
+import java.util.ArrayList;
 import java.util.List;
-import static usu.msa.pos.nqueens.nocollinear.Solutions.MAX_TRIALS;
-import usu.msa.pos.nqueens.nocollinear.geo.Segment;
+import static usu.msa.pos.nqueens.nocollinear.Tested.MAX_TRIALS;
 /**
  *
  * @author msa
@@ -22,12 +22,13 @@ import usu.msa.pos.nqueens.nocollinear.geo.Segment;
 
 public class NoCollinearNQueens {
 
-    public final Solutions solutions; 
+    public final Tested tested;
     public final Board board;
+    public final List<int[]> solutions = new ArrayList<>();
 
     public NoCollinearNQueens(int n, int trials) {
-        solutions = new Solutions(trials);
-        board = new Board<Segment>(n);
+        tested = new Tested(trials);
+        board = new Board(n);
     }
 
     public void solve() {
@@ -41,10 +42,10 @@ public class NoCollinearNQueens {
     public void solve(int minSolutions, int maxTrials) {
         board.randomize();
         for (int i = 0; i < maxTrials; i++) {
-            if (!solutions.isTested(board)) {
-                boolean isValid = board.isValid();
-                solutions.addTest(board, isValid);
-                if (solutions.numSolutions() >= minSolutions) 
+            if (!tested.isTested(board)) {
+                if (board.isValid()) solutions.add(board.asArray());
+                tested.addTest(board);
+                if (solutions.size() >= minSolutions) 
                     return;
             }
             board.randomize();
@@ -52,7 +53,7 @@ public class NoCollinearNQueens {
         System.err.println("Limit " + maxTrials + " reached");
     }
     
-    public List<Board> getSolutions() {
-        return solutions.get();
+    public List<int[]> getSolutions() {
+        return solutions;
     }
 }

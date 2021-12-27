@@ -11,7 +11,7 @@ Program parameters:
 ## java artifact (after build)
 
 ```
-java -jar build/libs/nqueens-nocollinear-rnd-all.jar boardSize minSolutions? maxTrials?
+java -jar build/libs/nqueens-nocollinear-rnd-1.0.1-all.jar boardSize minSolutions? maxTrials?
 ```
 
 ## output
@@ -26,10 +26,7 @@ Extra info (stderr) is provided concerning the execution:
 
 ```
 Limit _______ reached
-test count: ______ stores __ skips ___
 ```
 
 - limit reached if maxTrials was reached
 - test count: number of tests
-- stores: number of results obtained
-- skips: number of repeated boards (skipped)
